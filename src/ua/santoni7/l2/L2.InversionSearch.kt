@@ -1,5 +1,6 @@
 package ua.santoni7.l2
-import java.util.Arrays
+import java.util.*
+import kotlin.Comparator
 
 /**
  * Допоміжна функція для вводу числа з консолі
@@ -75,14 +76,33 @@ fun countInversions(arr: IntArray): Long {
     )
 }
 
+/**
+ * Структура що представляє пару результатів обчислення інверсій між юзерами [userIndex] та X
+ * @param inversions - обчислена кількість інверсій
+ * @param userIndex - порядковий номер юзера якого ми порівнювали з юзером X
+ */
+data class Result(val inversions: Long, val userIndex: Int)
+val resultComparator = Comparator<Result> { p0, p1 -> p0.inversions.compareTo(p1.inversions) }
+
 fun main(){
-    val u = readNumber("Input number of users: ")
-    val m = readNumber("Input number of movies: ")
-    val x = readNumber("Input index of user to compare with others: ")
+    val u = readNumber("Input number of users (u): ")
+    val m = readNumber("Input number of movies (m): ")
+    val x = readNumber("Input index of user to compare with others (x): ")
     val D = mutableListOf<IntArray>()
     for (i in 0 until u){
         D.add(readNumberArray("Input D[$i] array: "))
     }
-
-
+    val results = sortedSetOf<Result>(comparator = resultComparator)
+    for (i in 0 until u){
+        if (i == x) continue
+        // Обчислимо "масив пріоритетів" на основі масивів D[x] i D[i], в якому і будем розраховувати інверсії
+        val p = IntArray(m) { 0 }
+        for (j in 0 until m){
+            p[j] = D[x].indexOf(D[i][j])
+        }
+        val inversions = countInversions(p)
+        results.add(Result(inversions, i))
+    }
+    println("\nResults:")
+    println(results.joinToString(separator = "\n") { "(i = ${it.userIndex}; c = ${it.inversions})" })
 }
