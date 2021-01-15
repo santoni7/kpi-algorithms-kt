@@ -21,70 +21,57 @@ class Heap(private val maxsize: Int, private val heapType: HeapType) {
         arr[0] = heapType.defaultValue
     }
 
-    // Function to return the position of
-    // the parent for the node currently
-    // at pos
+    // Індекс батьківської вершини
     private fun parent(pos: Int): Int {
         return pos / 2
     }
 
-    // Function to return the position of the
-    // left child for the node currently at pos
+    // Індекс лівої дочірньої вершини
     private fun leftChild(pos: Int): Int {
         return 2 * pos
     }
 
-    // Function to return the position of
-    // the right child for the node currently
-    // at pos
+    // Індекс правої дочірньої вершини
     private fun rightChild(pos: Int): Int {
         return 2 * pos + 1
     }
 
-    // Function that returns true if the passed
-    // node is a leaf node
+    // Перевірка чи є вершина листом (тобто не має дочірніх вершин)
     private fun isLeaf(pos: Int): Boolean {
         return pos > (size / 2) && pos <= size
     }
 
+    // Перевірка чи існує вершина
     private fun exists(pos: Int): Boolean = pos <= size
 
-    // Function to swap two nodes of the heap
+    // Поміняти місцями вершини i та j
     private fun swap(i: Int, j: Int) {
         val tmp = arr[i]
         arr[i] = arr[j]
         arr[j] = tmp
     }
 
-    // Function to heapify the node at pos
-    private fun minHeapify(pos: Int) {
-
-        // If the node is a non-leaf node and greater
-        // than any of its child
+    // Нормалізація піраміди починаючи з вершини pos і нижче за структурою
+    // У цій процедурі виконується перевірка дотримання умов піраміди (чи то мін. піраміда у якоі вершина завжди менша за
+    // дочірні вершини, чи навпаки)
+    private fun heapify(pos: Int) {
         if (!isLeaf(pos)) {
             if (exists(leftChild(pos)) && comparator.compare(arr[pos], arr[leftChild(pos)]) > 0 ||
                 exists(rightChild(pos)) && comparator.compare(arr[pos], arr[rightChild(pos)]) > 0
             ) {
-//            if (arr[pos] > arr[leftChild(pos)] || arr[pos] > arr[rightChild(pos)]) {
-
-                // Swap with the left child and heapify
-                // the left child
                 if (!exists(rightChild(pos)) || comparator.compare(arr[leftChild(pos)], arr[rightChild(pos)]) < 0) {
-//                if (arr[leftChild(pos)] < arr[rightChild(pos)]) {
                     swap(pos, leftChild(pos))
-                    minHeapify(leftChild(pos))
-                } else {//if(exists(rightChild(pos))) {
+                    heapify(leftChild(pos))
+                } else {
                     swap(pos, rightChild(pos))
-                    minHeapify(rightChild(pos))
-                } //else {
-                //println("*** ELSE BRANCH ***")// Swap with the right child and heapify
-                //}
-                // the right child
+                    heapify(rightChild(pos))
+                }
             }
         }
     }
 
-    // Function to insert a node into the heap
+    // Вставка елементу у піраміду. Спочатку вона ставиться на останнє місце, після чого піднімається вгору допоки
+    // не буде виконана умова піраміди
     fun insert(element: Int) {
         if (size >= maxsize) {
             return
@@ -93,13 +80,12 @@ class Heap(private val maxsize: Int, private val heapType: HeapType) {
         var current = size
 
         while (comparator.compare(arr[current], arr[parent(current)]) < 0) {
-//        while (arr[current] < arr[parent(current)]) {
             swap(current, parent(current))
             current = parent(current)
         }
     }
 
-    // Function to print the contents of the heap
+    // Вивід піраміди у консоль (використовується для відлагодження програми)
     fun print() {
         println("========= ${heapType.name} BEGIN ========= ")
         println("Size=$size")
@@ -118,53 +104,21 @@ class Heap(private val maxsize: Int, private val heapType: HeapType) {
         println("========= ${heapType.name} END ========= ")
     }
 
-    // Function to build the min heap using
-    // the minHeapify
-    fun minHeap() {
-        for (pos in (size / 2) downTo 1) {
-            minHeapify(pos)
-        }
-    }
-
-    // Function to remove and return the minimum
-    // element from the heap
+    // Видаляє і повертає вершину піраміди
     fun pop(): Int {
         val popped = arr[FRONT]
         arr[FRONT] = arr[size--]
-        minHeapify(FRONT)
+        heapify(FRONT)
         return popped
     }
 
+    // Повертає поточну вершину
     fun peek(): Int = arr[FRONT]
 
 
     fun asIterable(): Iterable<Int> = arr.copyOfRange(FRONT, size + 1).asIterable()
 
     companion object {
-
         private const val FRONT = 1
-    }
-}
-
-fun main() {
-    val min = Heap(1000, HeapType.Min)
-    val max = Heap(1000, HeapType.Max)
-
-    for (i in 1..5) {
-        min.insert(i)
-        max.insert(i)
-
-//        min.print()
-        max.print()
-    }
-    println("\n\nStarting to remove:\n\n")
-    for (i in 1..5) {
-        val minRemoved = min.pop()
-        val maxRemoved = max.pop()
-
-//        println("Removed $minRemoved as top of min heap")
-//        min.print()
-        println("Removed $maxRemoved as top of min heap")
-        max.print()
     }
 }
