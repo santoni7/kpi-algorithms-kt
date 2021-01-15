@@ -112,7 +112,7 @@ class Worker(
  * Точка входу програми
  */
 fun main(args: Array<String>) {
-    val results = mutableMapOf(PivotProvider.Left to 0L, PivotProvider.Right to 0L, PivotProvider.Middle to 0L, PivotProvider.Average to 0L)
+    val results = mutableMapOf(PivotProvider.Left to 0L, PivotProvider.Right to 0L, PivotProvider.Middle to 0L)
     val iterationCount = readNumber("Input iteration count: ")
     val arraySize = readNumber("Input array size: ")
     val maxElement = readNumber("Input max element: ")
@@ -134,7 +134,7 @@ fun main(args: Array<String>) {
     val resultsString = results.toList().joinToString(separator = "\n") {
         "${it.first.name} -> ${it.second * 1.0 / iterationCount} comparsions on average"
     }
-    println("Results on running $iterationCount iterations with array size of $arraySize:\n$resultsString")
+    println("Results on running I=$iterationCount iterations with array size of N=$arraySize and max element M=$maxElement:\n$resultsString")
 }
 
 
