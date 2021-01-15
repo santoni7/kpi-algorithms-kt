@@ -33,11 +33,6 @@ sealed class PivotProvider(val name: String) {
     object Middle : PivotProvider("MIDDLE") {
         override fun getPivot(array: IntArray, leftIndex: Int, rightIndex: Int) = array[(leftIndex + rightIndex) / 2]
     }
-
-//    object Average : PivotProvider() {
-//        override fun getPivot(array: IntArray, leftIndex: Int, rightIndex: Int) =
-//            (array[leftIndex] + array[rightIndex]) / 2
-//    }
 }
 
 /**
@@ -97,14 +92,38 @@ fun partition(array: IntArray, l: Int, r: Int, pivotProvider: PivotProvider, com
     return min(r, max(l, left))
 }
 
+/**
+ * Допоміжний клас що обраховує кількість порівнянь елементів масиву у окремому потоці
+ */
+class Worker(
+    val pivotProvider: PivotProvider,
+    val array: IntArray
+) : Thread(pivotProvider.name) {
+    val counter = AtomicLong(0)
+
+    override fun run() {
+        runCatching { quickSort(array, 0, array.size - 1, pivotProvider, counter) }.onFailure {
+            println("ERROR IN THREAD [$name]: ${it.javaClass.name}")
+        }
+    }
+
+    fun joinAndGetResults(): Long {
+        join()
+        val counterValue = counter.get()
+        return counterValue
+    }
+}
+
+/**
+ * Точка входу програми
+ */
 fun main(args: Array<String>) {
-    val results = mutableMapOf(PivotProvider.Left to 0L, PivotProvider.Right to 0L, PivotProvider.Middle to 0L)
+    val results = mutableMapOf(PivotProvider.Left to 0L, PivotProvider.Right to 0L, PivotProvider.Middle to 0L, PivotProvider.Average to 0L)
     val iterationCount = readNumber("Input iteration count: ")
     val arraySize = readNumber("Input array size: ")
     val maxElement = readNumber("Input max element: ")
     for (i in 1..iterationCount) {
         val array = generateArray(arraySize, 0, maxElement)
-//        println("Generated array: ${array.joinToString { it.toString() }}\n")
 
         val w1 = Worker(PivotProvider.Left, array.copyOf())
         val w2 = Worker(PivotProvider.Middle, array.copyOf())
@@ -124,26 +143,4 @@ fun main(args: Array<String>) {
     println("Results on running $iterationCount iterations with array size of $arraySize:\n$resultsString")
 }
 
-/**
- * Допоміжний клас що обраховує кількість порівнянь елементів масиву у окремому потоці
- */
-class Worker(
-    val pivotProvider: PivotProvider,
-    val array: IntArray
-) : Thread(pivotProvider.name) {
-    val counter = AtomicLong(0)
-
-    override fun run() {
-        runCatching { quickSort(array, 0, array.size - 1, pivotProvider, counter) }.onFailure {
-            println("ERROR IN THREAD [$name]: ${it.javaClass.name}")
-        }
-    }
-
-    fun joinAndGetResults(): Long {
-        join()
-        val counterValue = counter.get()
-//        println("[$name] Comparsions count: $counterValue")
-        return counterValue
-    }
-}
 
