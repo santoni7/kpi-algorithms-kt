@@ -57,9 +57,6 @@ inline fun <T> runAndIncrement(counter: AtomicLong, action: () -> T): T {
 }
 
 fun quickSort(array: IntArray, left: Int, right: Int, pivotProvider: PivotProvider, comparsionCounter: AtomicLong) {
-    if (Thread.currentThread().stackTrace.size > 100) {
-        print("seems too many traces")
-    }
     if (left >= right) return
     val index = partition(array, left, right, pivotProvider, comparsionCounter)
     if (left < index - 1 && index - 1 != right) {
@@ -102,15 +99,12 @@ class Worker(
     val counter = AtomicLong(0)
 
     override fun run() {
-        runCatching { quickSort(array, 0, array.size - 1, pivotProvider, counter) }.onFailure {
-            println("ERROR IN THREAD [$name]: ${it.javaClass.name}")
-        }
+        quickSort(array, 0, array.size - 1, pivotProvider, counter)
     }
 
     fun joinAndGetResults(): Long {
         join()
-        val counterValue = counter.get()
-        return counterValue
+        return counter.get()
     }
 }
 
