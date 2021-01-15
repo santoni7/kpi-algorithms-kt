@@ -1,5 +1,8 @@
 package ua.santoni7.l4
 
+/**
+ * Тип простої піраміди
+ */
 sealed class HeapType(
     val comparator: Comparator<Int>,
     val defaultValue: Int,
@@ -9,6 +12,12 @@ sealed class HeapType(
     object Max : HeapType(Comparator.reverseOrder(), Int.MAX_VALUE, "MaxHeap")
 }
 
+/**
+ * Клас, що представляє просту піраміду. Приймає як аргумент [HeapType] - тип піраміди
+ * Це може бути мінімальна піраміда, у якої кожна вершина менша за її дочірні вершини, або
+ * максимальна, у якої кожна вершина більша за дочірні елементи. Відмінність у реалізації цих пірамід полягає у компараторі
+ * який порівнює числа.
+ */
 class Heap(private val maxsize: Int, private val heapType: HeapType) {
     private val arr: IntArray
     var size: Int = 0
@@ -51,9 +60,14 @@ class Heap(private val maxsize: Int, private val heapType: HeapType) {
         arr[j] = tmp
     }
 
-    // Нормалізація піраміди починаючи з вершини pos і нижче за структурою
-    // У цій процедурі виконується перевірка дотримання умов піраміди (чи то мін. піраміда у якоі вершина завжди менша за
-    // дочірні вершини, чи навпаки)
+    /**
+     * Нормалізація піраміди починаючи з вершини pos і нижче за структурою
+     * У цій процедурі виконується перевірка дотримання умов піраміди (чи то мін. піраміда у якоі вершина завжди менша за
+     * дочірні вершини, чи навпаки).
+     *
+     * Складність обумовлена максимальною к-стю рекурсивних викликів даної процедури і складає O(log(N)), так як
+     * висота бінарної піраміди не перевищує log(N)
+     */
     private fun heapify(pos: Int) {
         if (!isLeaf(pos)) {
             if (exists(leftChild(pos)) && comparator.compare(arr[pos], arr[leftChild(pos)]) > 0 ||
@@ -70,8 +84,13 @@ class Heap(private val maxsize: Int, private val heapType: HeapType) {
         }
     }
 
-    // Вставка елементу у піраміду. Спочатку вона ставиться на останнє місце, після чого піднімається вгору допоки
-    // не буде виконана умова піраміди
+    /**
+     * Вставка елементу у піраміду. Спочатку вона ставиться на останнє місце, після чого піднімається вгору допоки
+     * не буде виконана умова піраміди
+     *
+     * Складність обумовлена максимальною к-стю ітерацій циклу і складає O(log(N)), так як
+     * висота бінарної піраміди не перевищує log(N)
+     */
     fun insert(element: Int) {
         if (size >= maxsize) {
             return
@@ -95,16 +114,17 @@ class Heap(private val maxsize: Int, private val heapType: HeapType) {
                 " PARENT : " + arr[i]
                         + " LEFT CHILD : " + (if (exists(leftChild(i))) arr[leftChild(i)] else "NULL")
                         + " RIGHT CHILD :" + (if (exists(rightChild(i))) arr[rightChild(i)] else "NULL")
-//                " PARENT : " + arr[i]
-//                        + " LEFT CHILD : " + arr[2 * i]
-//                        + " RIGHT CHILD :" + arr[2 * i + 1]
             )
             println()
         }
         println("========= ${heapType.name} END ========= ")
     }
 
-    // Видаляє і повертає вершину піраміди
+    /**
+     * Видаляє і повертає вершину піраміди
+     *
+     * Складність обумовлена складністю процедури [heapify] і складає O(log(N))
+     */
     fun pop(): Int {
         val popped = arr[FRONT]
         arr[FRONT] = arr[size--]
@@ -112,9 +132,10 @@ class Heap(private val maxsize: Int, private val heapType: HeapType) {
         return popped
     }
 
-    // Повертає поточну вершину
+    /**
+     * Повертає поточну вершину не видаляючи її
+     */
     fun peek(): Int = arr[FRONT]
-
 
     fun asIterable(): Iterable<Int> = arr.copyOfRange(FRONT, size + 1).asIterable()
 
