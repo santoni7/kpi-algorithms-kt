@@ -2,7 +2,6 @@ package ua.santoni7.l5
 
 
 import ua.santoni7.l5.interfaces.HashProvider
-import ua.santoni7.l5.interfaces.List
 import ua.santoni7.l5.interfaces.Map
 
 
@@ -70,7 +69,7 @@ class OpenAddressHashMap<K, V>(
     }
 
     override fun getEntries(): List<KeyValuePair<K, V>> {
-        val list = LinkedList<KeyValuePair<K, V>>()
+        val list = mutableListOf<KeyValuePair<K, V>>()
         for (i in 0 until capacity) {
             mEntries[i]?.keyValuePair?.let { list.add(it) }
         }

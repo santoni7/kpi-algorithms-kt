@@ -1,6 +1,7 @@
 package ua.santoni7.l5.interfaces
 
 import ua.santoni7.l5.KeyValuePair
+import kotlin.collections.List
 
 interface Map<K, V> {
 
