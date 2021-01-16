@@ -1,9 +1,11 @@
 package ua.santoni7.l5
 
-
+/**
+ * HashTable implementation based on open address
+ */
 class OpenAddressHashMap<K, V>(
     private val hashProvider: HashProvider<K> = HashProvider.createDefault(),
-    initCapacity: Int = 512
+    initCapacity: Int = 1024
 ) : Map<K, V> {
     private var capacity = initCapacity
     private var size = 0
@@ -44,8 +46,9 @@ class OpenAddressHashMap<K, V>(
 
         var index = indexFor(pair.key, capacity)
 
-        while(mEntries[index] != null && mEntries[index]?.isDeleted != true && mEntries[index]?.key != pair.key)
-            index = (index + 1) % capacity
+        while(mEntries[index] != null && mEntries[index]?.isDeleted != true && mEntries[index]?.key != pair.key) {
+            index = (index + 1) % capacity // TODO: Add probing provider
+        }
         mEntries[index] = Entry(pair)
         return true
     }
@@ -70,6 +73,16 @@ class OpenAddressHashMap<K, V>(
             mEntries[i]?.keyValuePair?.let { list.add(it) }
         }
         return list
+    }
+
+    override fun countCollisions(): Int {
+        var c = 0
+        mEntries.forEachIndexed { index, entry ->
+            entry?.key?.let { hashProvider.hashFor(it, capacity) }?.let { calculatedIndex ->
+                if(index != calculatedIndex) c++ // Collision found: element is located on position different then hashProvider provided
+            }
+        }
+        return c
     }
 
     // Indicates whether capacity should be enlarged

@@ -1,9 +1,9 @@
 package ua.santoni7.l5
 
 
-class ListHashMap<K, V>(
+class ChainingHashMap<K, V>(
     private val hashProvider: HashProvider<K> = HashProvider.createDefault(),
-    initCapacity: Int = 256
+    initCapacity: Int = 1024
 ) : Map<K, V> {
     private var capacity = initCapacity
     private var size = 0
@@ -52,12 +52,13 @@ class ListHashMap<K, V>(
             mEntries[index] = Entry(pair)
         } else {
             val kvp = entry.find(pair.key)
-            if (kvp == null)
-            //Key is not in the table
+            if (kvp == null) {
+                //Key is not in the table
                 entry.append(pair)
-            else
-            // Key already exists, so change value
+            } else {
+                // Key already exists, so change value
                 kvp.value = pair.value
+            }
         }
         return true
     }
@@ -74,13 +75,22 @@ class ListHashMap<K, V>(
     override fun getEntries(): List<KeyValuePair<K, V>> {
         val list = mutableListOf<KeyValuePair<K, V>>()
         for (i in 0 until capacity) {
-            var e: Entry? = mEntries[i]
+            var e = mEntries[i]
             while (e != null) {
                 list.add(e.keyValuePair)
                 e = e.next()
             }
         }
         return list
+    }
+
+    override fun countCollisions(): Int {
+        var c = 0
+        for (i in 0 until capacity) {
+            val e = mEntries[i]
+            c += e?.sizeToEnd()?.minus(1) ?: 0
+        }
+        return c
     }
 
     // Indicates whether capacity should be enlarged
@@ -110,10 +120,20 @@ class ListHashMap<K, V>(
                 return keyValuePair
             return if (next() != null) next()!!.find(key) else null
         }
+
+        fun sizeToEnd(): Int {
+            var c = 1
+            var entry: Entry? = this
+            while(entry?.next() != null){
+                entry = entry.next()
+                c++
+            }
+            return c
+        }
     }
 
     companion object {
-        private val loadFactor = 0.75f
+        private val loadFactor = 0.9999f
     }
 
 }
