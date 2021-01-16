@@ -1,11 +1,6 @@
 package ua.santoni7.l5
 
 
-import ua.santoni7.l5.interfaces.HashProvider
-import ua.santoni7.l5.interfaces.Map
-import java.util.LinkedList
-
-
 class ListHashMap<K, V>(
     private val hashProvider: HashProvider<K> = HashProvider.createDefault(),
     initCapacity: Int = 256
@@ -30,7 +25,7 @@ class ListHashMap<K, V>(
         for (i in 0 until capacity / 2) {
             var e: Entry? = oldEntries[i]
             while (e != null) {
-                put(e.keyValuePair)
+                set(e.keyValuePair)
                 e = e.next()
             }
         }
@@ -43,11 +38,11 @@ class ListHashMap<K, V>(
         return hashProvider.hashFor(item, capacity)
     }
 
-    override fun put(key: K, value: V): Boolean {
-        return put(KeyValuePair(key, value))
+    override fun set(key: K, value: V): Boolean {
+        return set(KeyValuePair(key, value))
     }
 
-    fun put(pair: KeyValuePair<K, V>): Boolean {
+    private fun set(pair: KeyValuePair<K, V>): Boolean {
         if (thresholdSize())
             enlarge()
 
