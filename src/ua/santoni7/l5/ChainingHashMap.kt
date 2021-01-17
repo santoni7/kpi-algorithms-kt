@@ -133,7 +133,7 @@ class ChainingHashMap<K, V>(
     }
 
     companion object {
-        private val loadFactor = 0.9999f
+        private val loadFactor = 0.75f
     }
 
 }

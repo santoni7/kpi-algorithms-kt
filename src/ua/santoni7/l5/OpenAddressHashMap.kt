@@ -46,8 +46,10 @@ class OpenAddressHashMap<K, V>(
 
         var index = indexFor(pair.key, capacity)
 
-        while(mEntries[index] != null && mEntries[index]?.isDeleted != true && mEntries[index]?.key != pair.key) {
-            index = (index + 1) % capacity // TODO: Add probing provider
+        var с: Int = 0
+        while(mEntries[index] != null && mEntries[index]?.isDeleted != true && mEntries[index]?.key != pair.key && с <= size) {
+            index = (index + 1) % capacity
+            с++
         }
         mEntries[index] = Entry(pair)
         return true

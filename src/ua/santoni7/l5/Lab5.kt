@@ -22,14 +22,16 @@ fun findTwoSum(A: IntArray, s: Int, hashMap: Map<Int, Int>): Boolean {
     return false
 }
 
+val initCapacity = 65536*8
 fun main() {
     val mapFactories = MapFactory.ALL // усі наявні імплементації інтерфейсу Map
     val hashProviders = IntHashProviders.ALL // усі наявні імплементації інтерфейсу HashProvider
 
     val results = mutableMapOf<MapFactory, MutableMap<HashProvider<Int>, Int>>() // структура для збереженні к-сті колізії для кожного варіанту
-
-    val A = generateArray(1023, 0, 100000000)
-    val s = 1000
+//32768
+    val A = generateRandomArray(16384, Int.MIN_VALUE, Int.MAX_VALUE)
+//    val A = generateNaturalOrderArray(10000)
+    val s = 999
 
     mapFactories.forEach { factory ->
         val resultsMap = mutableMapOf<HashProvider<Int>, Int>()//ChainingHashMap<HashProvider<Int>, Int>()
@@ -53,7 +55,9 @@ fun main() {
  */
 val random = Random(System.currentTimeMillis())
 
-fun generateArray(size: Int, min: Int, max: Int): IntArray = IntArray(size) { random.nextInt(min, max) }
+fun generateRandomArray(size: Int, min: Int, max: Int): IntArray = IntArray(size) { random.nextInt(min, max) }
+
+fun generateNaturalOrderArray(size: Int): IntArray = IntArray(size) { it }
 
 fun readNumber(prompt: String = "Input number: "): Int {
     print(prompt);
@@ -74,8 +78,8 @@ class MapFactory(
     override fun toString(): String = name
 
     companion object {
-        val CHAINING = MapFactory("Chaining") { ChainingHashMap(it) }
-        val OPEN_ADDRESS = MapFactory("OpenAddress") { OpenAddressHashMap(it) }
+        val CHAINING = MapFactory("Chaining") { ChainingHashMap(it, initCapacity) }
+        val OPEN_ADDRESS = MapFactory("OpenAddress") { OpenAddressHashMap(it, initCapacity) }
 
         val ALL = listOf(CHAINING, OPEN_ADDRESS)
     }
